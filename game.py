@@ -9,6 +9,13 @@ from cue import Cue
 
 class Game():
     clock = pygame.time.Clock()
+    moving_balls = deque([])
+    pockets = {'ur_pocket': [Vec2D(UR_POCKET)],
+               'ul_pocket': [Vec2D(UL_POCKET)],
+               'dl_pocket': [Vec2D(DL_POCKET)],
+               'dr_pocket': [Vec2D(DR_POCKET)],
+               'ml_pocket': [Vec2D(ML_POCKET)],
+               'mr_pocket': [Vec2D(MR_POCKET)]}
 
     def __init__(self, size):
         self.screen = pygame.display.set_mode(size)
@@ -37,13 +44,15 @@ class Game():
         self.brown = balls.ColorBall(POS_BROWN, BROWN, 4)
         self.green = balls.ColorBall(POS_GREEN, GREEN, 3)
         self.yellow = balls.ColorBall(POS_YELLOW, YELLOW, 2)
-        self.all_balls = deque([self.redball1, self.redball2, self.redball3,
+        self.all_balls = deque([
+                                self.redball1, self.redball2, self.redball3,
                                 self.redball4, self.redball5, self.redball6,
                                 self.redball7, self.redball8, self.redball9,
                                 self.redball10, self.redball11, self.redball12,
                                 self.redball13, self.redball14, self.redball15,
                                 self.white_ball, self.black, self.pink,
-                                self.blue, self.brown, self.green, self.yellow])
+                                self.blue, self.brown, self.green, self.yellow
+                                ])
         self.cue = Cue()
 
     def ball_update(self):
@@ -80,7 +89,8 @@ class Game():
 
     def draw_balls(self):
         for ball in self.all_balls:
-            balls.Ball._move(ball)
+            if ball.velocity.length > 0:
+                balls.Ball._move(ball, self.pockets)
             pygame.draw.circle(self.game_surface, ball.COLOR,\
             (int(ball.coords.x), int(ball.coords.y)), ball.RADIUS)
 
@@ -97,6 +107,7 @@ class Game():
 
     def white_ball_grab(self):
         mouse_pos = Vec2D(pygame.mouse.get_pos())
+        #print(mouse_pos)
         if self.white_ball.coords.x-8 < mouse_pos.x < \
                     self.white_ball.coords.x+8 and self.white_ball.coords.y-8\
                     < mouse_pos.y < self.white_ball.coords.y+8:
@@ -110,8 +121,25 @@ class Game():
             self.white_ball.coords = mouse_pos
 
     def cue_draw(self):
-        if self.white_ball.velocity.length == 0:
+        if self.if_statick_board(): # Да се имплементира за логоката с играчите!
             start_pos, end_pos = self.cue.get_cue_pos(self.white_ball.coords)
             pygame.draw.line(self.game_surface, self.cue.color, \
             (int(start_pos.x), int(start_pos.y)), (int(end_pos.x),\
-            int(end_pos.y)), 3)
+            int(end_pos.y)), CUE_WIDTH)
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_KP_ENTER]:
+                new_velocity = Vec2D.normalized(start_pos - end_pos)
+                force = Vec2D(self.white_ball.coords - start_pos).length
+                self.white_ball.velocity = new_velocity * force ** 2 / MIN_HITTING_FORCE
+
+    def if_statick_board(self):
+        for ball in self.all_balls:
+            if ball.velocity.length > 0 and ball not in self.moving_balls:
+                self.moving_balls.append(ball)
+            elif ball in self.moving_balls and ball.velocity.length == 0:
+                self.moving_balls.pop()
+        if self.moving_balls == deque([]):
+            return True
+        else:
+            return False
+

@@ -176,19 +176,19 @@ class Game():
                     self.foul = True
                 red_ball += 1
                 points += ball.points
-            ball.coords = Vec2D(ball.pos)
             ball.velocity = Vec2D(0, 0)
+            self.ball_return(ball)
             ball.vizibility = True
             balls.Ball.potted.remove(ball)
         if color_ball > 1 or (red_ball > 0 and color_ball > 0):
             self.foul = True
         if self.foul is True:
-            print("FouL wrong ball potted")
+            print("Foul wrong ball potted")
             self.change_turn()
-            if max(color_points) > 4:
+            if max(color_points) > FOUL_POINTS:
                 self.turn.points += max(color_points)
             else:
-                self.turn.points += 4
+                self.turn.points += FOUL_POINTS
         else:
             if self.turn.target == RED_TARGET:
                 self.turn.points += points
@@ -204,7 +204,7 @@ class Game():
         if self.board_status == STATICK:
             if self.hitted_balls == deque([]) and self.hit is True and balls.Ball.potted == []:
                 self.change_turn()
-                self.turn.points += 4
+                self.turn.points += FOUL_POINTS
                 print("Foul no ball hit")
                 self.score()
             self.hit = False
@@ -216,13 +216,15 @@ class Game():
                         and self.turn.target != RED_TARGET):
                     if balls.Ball.potted == []:
                         print("Foul wrong ball hit")
-                        if self.hitted_balls[0].points > 4:
+                        if self.hitted_balls[0].points > FOUL_POINTS:
                             self.turn.points += self.hitted_balls[0].points
                         else:
-                            self.turn.points += 4
+                            self.turn.points += FOUL_POINTS
                         self.score()
                     else:
                         self.potted_ball_handler(balls.Ball.potted)
+                if balls.Ball.potted != []:
+                    self.potted_ball_handler(balls.Ball.potted)
                 else:
                     self.change_turn()
                 self.hitted_balls = deque([])
@@ -246,3 +248,38 @@ class Game():
         print("| " + self.second_player.name + " - " + str(self.second_player.points))
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print(self.turn.name + " to hit")
+
+    def ball_return(self, potted_ball):
+        returning_pos = Vec2D(potted_ball.pos)
+        color_balls_pos = [x.pos for x in self.all_balls 
+                           if isinstance(x, balls.ColorBall)]
+        # my_place_taken = False
+        empty_place = False
+        my_place_taken = self.chek_for_place(potted_ball)
+        if my_place_taken is True:
+            for position in color_balls_pos:
+                empty_position = self.chek_for_place(potted_ball, pos=position)
+                if empty_position is not True:
+                    empty_place = True
+                    returning_pos = position
+                    break
+        if my_place_taken is True and empty_place is not True:
+            found_place = False
+            while found_place is not True:
+                flag = self.chek_for_place(potted_ball, pos=returning_pos)
+                if flag is not True:
+                    found_place = True
+                returning_pos.x += 1
+            potted_ball.coords = returning_pos
+        else:
+            potted_ball.coords = returning_pos
+
+    def chek_for_place(self, potted_ball, pos=None):
+        if pos is None:
+            pos = potted_ball.pos
+        for ball in self.all_balls:
+            if ball is not potted_ball:
+                delta = ball.coords - pos
+                if delta.length <= ball.RADIUS * 2:
+                    return True
+        return False

@@ -21,7 +21,6 @@ def main():
         the_game.game_surface.blit(the_game.table, TABLE_POS)
         the_game.game_handler()
         the_game.draw_balls()
-        #the_game.cue_draw()
         the_game.screen.blit(the_game.game_surface, (0, 0))
         pygame.display.flip()
         the_game.clock.tick(1000000)

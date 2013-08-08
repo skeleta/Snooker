@@ -25,7 +25,7 @@ class Ball():
                 int(ball.coords.x) not in range(564, 960)\
                 and int(ball.coords.y) not in range(90, 484):
 
-            """Ако някоя от топките в обсега на някой от джобовете
+            """Ако някоя от топките е в обсега на някой от джобовете
             влизаме в този if и почваме да следим за сблъсък със стената на
             някой от джобовете или за попадение в джоба"""
 
@@ -109,6 +109,7 @@ class WhiteBall(Ball):
     velocity = Vec2D(0, 0) # 352,-100 - да се подобри сблусъка
     grabed = False
     vizibility = True
+    points = 4
 
     def __init__(self, coords):
         self.coords = Vec2D(coords)

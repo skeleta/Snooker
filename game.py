@@ -5,6 +5,7 @@ import math
 from vec2D import Vec2d as Vec2D
 from collections import deque
 from cue import Cue
+from score import Score
 from player import Player
 
 
@@ -62,6 +63,10 @@ class Game():
         self.cue = Cue()
         self.turn = self.firs_player
         self.board_status = STATICK
+        self.colol_target_order = iter([x for x in range(2, 8)])
+        self.next_target_ball = next(self.colol_target_order)
+        self.condition = "still red"
+        self.score = Score()
 
     def ball_update(self):
         for a in range(0, len(self.all_balls)-1):
@@ -153,7 +158,7 @@ class Game():
                 self.moving_balls.append(ball)
             elif ball in self.moving_balls and ball.velocity.length == 0:
                 self.moving_balls.remove(ball)
-        if self.moving_balls == deque([]):
+        if not self.moving_balls:
             self.board_status = STATICK
         else:
             self.board_status = NON_STATICK
@@ -177,8 +182,10 @@ class Game():
                 red_ball += 1
                 points += ball.points
             ball.velocity = Vec2D(0, 0)
-            self.ball_return(ball)
-            ball.vizibility = True
+            if isinstance(ball, balls.RedBall):
+                self.all_balls.remove(ball)
+            else:
+                self.ball_return(ball)
             balls.Ball.potted.remove(ball)
         if color_ball > 1 or (red_ball > 0 and color_ball > 0):
             self.foul = True
@@ -196,39 +203,46 @@ class Game():
                 self.turn.points += max(color_points)
             self.turn.change_target()
         self.foul = False
-        self.score()
+        # self.score()
 
     def game_handler(self):
+        # print(self.condition)
+        self.score.show_score(self.firs_player, self.second_player, self.turn)
         self.ball_update()
         self.if_statick_board()
+        self.check_condition()
         if self.board_status == STATICK:
-            if self.hitted_balls == deque([]) and self.hit is True and balls.Ball.potted == []:
+            if not self.hitted_balls and self.hit is True and not balls.Ball.potted:
                 self.change_turn()
                 self.turn.points += FOUL_POINTS
                 print("Foul no ball hit")
-                self.score()
+                # self.score()
             self.hit = False
             self.cue_draw()
-            if self.hitted_balls != deque([]):
-                if (isinstance(self.hitted_balls[0], balls.ColorBall)\
-                        and self.turn.target != COLOR_TARGET) or\
-                        (isinstance(self.hitted_balls[0], balls.RedBall)\
-                        and self.turn.target != RED_TARGET):
-                    if balls.Ball.potted == []:
-                        print("Foul wrong ball hit")
-                        if self.hitted_balls[0].points > FOUL_POINTS:
-                            self.turn.points += self.hitted_balls[0].points
+            if self.hitted_balls:
+                if self.condition == "still red":
+                    if (isinstance(self.hitted_balls[0], balls.ColorBall)\
+                            and self.turn.target != COLOR_TARGET) or\
+                            (isinstance(self.hitted_balls[0], balls.RedBall)\
+                            and self.turn.target != RED_TARGET):
+                        if not balls.Ball.potted:
+                            print("Foul wrong ball hit")
+                            if self.hitted_balls[0].points > FOUL_POINTS:
+                                self.turn.points += self.hitted_balls[0].points
+                            else:
+                                self.turn.points += FOUL_POINTS
+                            # self.score()
                         else:
-                            self.turn.points += FOUL_POINTS
-                        self.score()
-                    else:
+                            self.potted_ball_handler(balls.Ball.potted)
+                    if balls.Ball.potted:
                         self.potted_ball_handler(balls.Ball.potted)
-                if balls.Ball.potted != []:
-                    self.potted_ball_handler(balls.Ball.potted)
+                    else:
+                        print("no ball poted")
+                        self.change_turn()
                 else:
-                    self.change_turn()
+                    self.no_red_game_handler()
                 self.hitted_balls = deque([])
-            if balls.Ball.potted != []:
+            if balls.Ball.potted:
                 self.potted_ball_handler(balls.Ball.potted)
 
     def change_turn(self):
@@ -242,18 +256,18 @@ class Game():
         print("-----")
         print(self.turn.name + " hit")
 
-    def score(self):
-        print("SCORE:")
-        print("| " + self.firs_player.name + " - " + str(self.firs_player.points))
-        print("| " + self.second_player.name + " - " + str(self.second_player.points))
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        print(self.turn.name + " to hit")
+    # def score(self):
+    #     print("SCORE:")
+    #     print("| " + self.firs_player.name + " - " + str(self.firs_player.points))
+    #     print("| " + self.second_player.name + " - " + str(self.second_player.points))
+    #     print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n')
+    #     print(self.turn.name + " to hit")
 
     def ball_return(self, potted_ball):
+        potted_ball.vizibility = True
         returning_pos = Vec2D(potted_ball.pos)
         color_balls_pos = [x.pos for x in self.all_balls 
                            if isinstance(x, balls.ColorBall)]
-        # my_place_taken = False
         empty_place = False
         my_place_taken = self.chek_for_place(potted_ball)
         if my_place_taken is True:
@@ -283,3 +297,60 @@ class Game():
                 if delta.length <= ball.RADIUS * 2:
                     return True
         return False
+
+    def check_condition(self):
+        flag = True
+        for ball in self.all_balls:
+            if isinstance(ball, balls.RedBall):
+                flag = False
+                break
+        if flag:
+            if self.turn.target == COLOR_TARGET:
+                self.condition = "still red"
+            else:
+                self.condition = "red free"
+
+    def no_red_game_handler(self):
+        if self.hitted_balls[0].points == self.next_target_ball:
+            if balls.Ball.potted:
+                if len(balls.Ball.potted) < 1:
+                    print("Foul more then 1 colorball potted")
+                    self.change_turn()
+                    points = [0]
+                    for ball in balls.Ball.potted:
+                        points.append(balls.Ball.potted.points)
+                        self.ball_return(ball)
+                        balls.Ball.potted.remove(ball)
+                    if max(points) > 4:
+                        self.turn.points += max(points)
+                    else:
+                        self.turn.points += FOUL_POINTS
+                else:
+                    if balls.Ball.potted[0].points == self.next_target_ball:
+                        self.turn.points += balls.Ball.potted[0].points
+                        self.all_balls.remove(balls.Ball.potted[0])
+                        try:
+                            self.next_target_ball = next(self.colol_target_order)
+                        except:
+                            self.next_target_ball = False
+                            print("Game finished")
+                    else:
+                        print("Foul wrong colorball potted")
+                        self.change_turn()
+                        if balls.Ball.potted[0].points > 4:
+                            self.turn.points += balls.Ball.potted[0].points
+                        else:
+                            self.turn.points += FOUL_POINTS
+                        self.ball_return(balls.Ball.potted[0])
+                    balls.Ball.potted.remove(balls.Ball.potted[0])
+            else:
+                print("No colorball potted")
+                self.change_turn()
+        else:
+            print("Foul wrong colorball hited")
+            self.change_turn()
+            if self.hitted_balls[0].points > 4:
+                self.turn.points += self.hitted_balls[0].points
+            else:
+                self.turn.points += FOUL_POINTS
+        # self.score()

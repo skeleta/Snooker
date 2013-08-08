@@ -2,7 +2,7 @@ from settings import *
 
 
 class Player():
-    points = 0
+    points = 150
 
     def __init__(self, name):
         self.name = name

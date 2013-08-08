@@ -1,5 +1,6 @@
 import pygame
 from game import Game
+from score import Score
 from settings import *
 
 
@@ -22,8 +23,9 @@ def main():
         the_game.game_handler()
         the_game.draw_balls()
         the_game.screen.blit(the_game.game_surface, (0, 0))
+        the_game.screen.blit(Score.score_board, (408, 530))
         pygame.display.flip()
-        the_game.clock.tick(1000000)
+        the_game.clock.tick(100)
     pygame.quit()
 
 

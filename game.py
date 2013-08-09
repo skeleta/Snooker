@@ -73,36 +73,104 @@ class Game():
             for b in range(a+1, len(self.all_balls)):
                 ball, next_ball = self.all_balls[a], self.all_balls[b]
                 delta = next_ball.coords - ball.coords
-                if delta.length <= ball.RADIUS * 2:
-                    ball_axis = Vec2D.perpendicular_normal(ball.velocity)
-                    next_ball_axis = Vec2D.perpendicular_normal(next_ball.velocity)
+                if (next_ball.coords - ball.coords).length <= ball.RADIUS * 2:
                     if ball.velocity.length > 0 and next_ball.velocity.length > 0:
                         ball.coords += Vec2D.normalized(delta) * (delta.length - ball.RADIUS * 2)
                         next_ball.coords += Vec2D.normalized(-delta) * (delta.length - ball.RADIUS * 2)
-                        sin = self.sin(ball.velocity, delta)
-                        ball.velocity -= 2 * (ball.velocity.dot(ball_axis)) * ball_axis
-                        ball.velocity *= sin
-                        next_ball.velocity -= 2 * (next_ball.velocity.dot(next_ball_axis)) * next_ball_axis
-                        next_ball.velocity *= (1 - sin)
+                        delta = next_ball.coords - ball.coords
+                        unit_delta = Vec2D(delta/delta.get_length())
+                        unit_tangent = Vec2D(unit_delta.perpendicular())
+                        velocity_1_n = unit_delta.dot(ball.velocity)
+                        velocity_1_t = unit_tangent.dot(ball.velocity)
+                        velocity_2_n = unit_delta.dot(next_ball.velocity)
+                        velocity_2_t = unit_tangent.dot(next_ball.velocity)
+                        new_velocity_1_t = velocity_1_t
+                        new_velocity_2_t = velocity_2_t
+                        new_velocity_1_n = velocity_2_n
+                        new_velocity_2_n = velocity_1_n
+                        new_velocity_1_n = Vec2D(new_velocity_1_n * unit_delta)
+                        new_velocity_2_n = Vec2D(new_velocity_2_n * unit_delta)
+                        new_velocity_1_t = Vec2D(new_velocity_1_t * unit_tangent)
+                        new_velocity_2_t = Vec2D(new_velocity_2_t * unit_tangent)
+                        new_velocity_1 = Vec2D(new_velocity_1_n + new_velocity_1_t)
+                        new_velocity_2 = Vec2D(new_velocity_2_n + new_velocity_2_t)
+                        ball.velocity = new_velocity_1
+                        next_ball.velocity = new_velocity_2
                     elif ball.velocity.length > 0:
                         if isinstance(ball, balls.WhiteBall):
                             self.hitted_balls.append(next_ball)
                         ball.coords += Vec2D.normalized(delta) * (delta.length - ball.RADIUS * 2)
-                        sin = self.sin(ball.velocity, delta)
-                        old_velocity = ball.velocity.length
-                        ball.velocity -= 2 * (ball.velocity.dot(ball_axis)) * ball_axis
-                        ball.velocity *= sin
-                        next_ball.velocity = Vec2D.normalized(delta) * old_velocity * (1 - sin)
+                        delta = next_ball.coords - ball.coords
+                        unit_delta = Vec2D(delta/delta.get_length())
+                        unit_tangent = Vec2D(unit_delta.perpendicular())
+                        velocity_1_n = unit_delta.dot(ball.velocity)
+                        velocity_1_t = unit_tangent.dot(ball.velocity)
+                        velocity_2_n = unit_delta.dot(next_ball.velocity)
+                        velocity_2_t = unit_tangent.dot(next_ball.velocity)
+                        new_velocity_1_t = velocity_1_t
+                        new_velocity_2_t = velocity_2_t
+                        new_velocity_1_n = velocity_2_n
+                        new_velocity_2_n = velocity_1_n
+                        new_velocity_1_n = Vec2D(new_velocity_1_n * unit_delta)
+                        new_velocity_2_n = Vec2D(new_velocity_2_n * unit_delta)
+                        new_velocity_1_t = Vec2D(new_velocity_1_t * unit_tangent)
+                        new_velocity_2_t = Vec2D(new_velocity_2_t * unit_tangent)
+                        new_velocity_1 = Vec2D(new_velocity_1_n + new_velocity_1_t)
+                        new_velocity_2 = Vec2D(new_velocity_2_n + new_velocity_2_t)
+                        ball.velocity = new_velocity_1
+                        next_ball.velocity = new_velocity_2
                     elif next_ball.velocity.length > 0:
                         if isinstance(next_ball, balls.WhiteBall):
                             self.hitted_balls.append(ball)
                         next_ball.coords += Vec2D.normalized(-delta) * (delta.length - ball.RADIUS * 2)
-                        delta = -delta
-                        sin = self.sin(next_ball.velocity, delta)
-                        old_velocity = next_ball.velocity.length
-                        next_ball.velocity -= 2 * (next_ball.velocity.dot(next_ball_axis)) * next_ball_axis
-                        next_ball.velocity *= sin
-                        ball.velocity = Vec2D.normalized(delta) * old_velocity * (1 - sin)
+                        delta = next_ball.coords - ball.coords
+                        unit_delta = Vec2D(delta/delta.get_length())
+                        unit_tangent = Vec2D(unit_delta.perpendicular())
+                        velocity_1_n = unit_delta.dot(ball.velocity)
+                        velocity_1_t = unit_tangent.dot(ball.velocity)
+                        velocity_2_n = unit_delta.dot(next_ball.velocity)
+                        velocity_2_t = unit_tangent.dot(next_ball.velocity)
+                        new_velocity_1_t = velocity_1_t
+                        new_velocity_2_t = velocity_2_t
+                        new_velocity_1_n = velocity_2_n
+                        new_velocity_2_n = velocity_1_n
+                        new_velocity_1_n = Vec2D(new_velocity_1_n * unit_delta)
+                        new_velocity_2_n = Vec2D(new_velocity_2_n * unit_delta)
+                        new_velocity_1_t = Vec2D(new_velocity_1_t * unit_tangent)
+                        new_velocity_2_t = Vec2D(new_velocity_2_t * unit_tangent)
+                        new_velocity_1 = Vec2D(new_velocity_1_n + new_velocity_1_t)
+                        new_velocity_2 = Vec2D(new_velocity_2_n + new_velocity_2_t)
+                        ball.velocity = new_velocity_1
+                        next_ball.velocity = new_velocity_2
+                #     ball_axis = Vec2D.perpendicular_normal(ball.velocity)
+                #     next_ball_axis = Vec2D.perpendicular_normal(next_ball.velocity)
+                #     if ball.velocity.length > 0 and next_ball.velocity.length > 0:
+                #         ball.coords += Vec2D.normalized(delta) * (delta.length - ball.RADIUS * 2)
+                #         next_ball.coords += Vec2D.normalized(-delta) * (delta.length - ball.RADIUS * 2)
+                #         sin = self.sin(ball.velocity, delta)
+                #         ball.velocity -= 2 * (ball.velocity.dot(ball_axis)) * ball_axis
+                #         ball.velocity *= sin
+                #         next_ball.velocity -= 2 * (next_ball.velocity.dot(next_ball_axis)) * next_ball_axis
+                #         next_ball.velocity *= (1 - sin)
+                #     elif ball.velocity.length > 0:
+                #         if isinstance(ball, balls.WhiteBall):
+                #             self.hitted_balls.append(next_ball)
+                #         ball.coords += Vec2D.normalized(delta) * (delta.length - ball.RADIUS * 2)
+                #         sin = self.sin(ball.velocity, delta)
+                #         old_velocity = ball.velocity.length
+                #         ball.velocity -= 2 * (ball.velocity.dot(ball_axis)) * ball_axis
+                #         ball.velocity *= sin
+                #         next_ball.velocity = Vec2D.normalized(delta) * old_velocity * (1 - sin)
+                #     elif next_ball.velocity.length > 0:
+                #         if isinstance(next_ball, balls.WhiteBall):
+                #             self.hitted_balls.append(ball)
+                #         next_ball.coords += Vec2D.normalized(-delta) * (delta.length - ball.RADIUS * 2)
+                #         delta = -delta
+                #         sin = self.sin(next_ball.velocity, delta)
+                #         old_velocity = next_ball.velocity.length
+                #         next_ball.velocity -= 2 * (next_ball.velocity.dot(next_ball_axis)) * next_ball_axis
+                #         next_ball.velocity *= sin
+                #         ball.velocity = Vec2D.normalized(delta) * old_velocity * (1 - sin)
 
     def draw_balls(self):
         for ball in self.all_balls:
@@ -203,7 +271,6 @@ class Game():
                 self.turn.points += max(color_points)
             self.turn.change_target()
         self.foul = False
-        # self.score()
 
     def game_handler(self):
         # print(self.condition)
@@ -216,7 +283,6 @@ class Game():
                 self.change_turn()
                 self.turn.points += FOUL_POINTS
                 print("Foul no ball hit")
-                # self.score()
             self.hit = False
             self.cue_draw()
             if self.hitted_balls:
@@ -231,7 +297,6 @@ class Game():
                                 self.turn.points += self.hitted_balls[0].points
                             else:
                                 self.turn.points += FOUL_POINTS
-                            # self.score()
                         else:
                             self.potted_ball_handler(balls.Ball.potted)
                     if balls.Ball.potted:
@@ -255,13 +320,6 @@ class Game():
     def who_plays(self):
         print("-----")
         print(self.turn.name + " hit")
-
-    # def score(self):
-    #     print("SCORE:")
-    #     print("| " + self.firs_player.name + " - " + str(self.firs_player.points))
-    #     print("| " + self.second_player.name + " - " + str(self.second_player.points))
-    #     print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n')
-    #     print(self.turn.name + " to hit")
 
     def ball_return(self, potted_ball):
         potted_ball.vizibility = True
@@ -353,4 +411,3 @@ class Game():
                 self.turn.points += self.hitted_balls[0].points
             else:
                 self.turn.points += FOUL_POINTS
-        # self.score()

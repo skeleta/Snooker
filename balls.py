@@ -8,12 +8,14 @@ class Ball():
     RADIUS = 8
     potted = []
 
-    def __init__(self, coords, COLOR, points=0, velocity=Vec2D(0, 0)):
+    def __init__(self, coords, **kwds):
         self.coords = Vec2D(coords)
-        self.points = points
-        self.COLOR = COLOR
-        self.velocity = velocity
+        self.pos = Vec2D(coords)
+        # self.points = points
+        # self.COLOR = COLOR
+        self.velocity = Vec2D(0, 0)
         self.vizibility = True
+        self.is_potted = False
 
     def _move(ball, pockets):
         check = Vec2D(ball.velocity)
@@ -62,33 +64,38 @@ class Ball():
 
 
 class ColorBall(Ball):
-    def __init__(self, coords, COLOR, points, velocity=Vec2D(0, 0)):
-        self.coords = Vec2D(coords)
-        self.pos = Vec2D(coords)
+    def __init__(self, COLOR, points, **kwds):
         self.points = points
         self.COLOR = COLOR
-        self.velocity = velocity
-        self.vizibility = True
+        super().__init__(**kwds)
+
 
 
 class WhiteBall(Ball):
-    COLOR = WHITE
-    velocity = Vec2D(0, 0) # 352,-100 - да се подобри сблусъка
-    grabed = False
-    vizibility = True
-    points = 4
+    # COLOR = WHITE
+    # velocity = Vec2D(0, 0) # 352,-100 - да се подобри сблусъка
+    # grabed = False
+    # points = 4
 
-    def __init__(self, coords):
-        self.coords = Vec2D(coords)
-        self.pos = Vec2D(coords)
+    def __init__(self, **kwds):
+        self.COLOR = WHITE
+        self.grabed = False
+        self.points = 4
+        super().__init__(**kwds)
+        # self.coords = Vec2D(coords)
+        # self.pos = Vec2D(coords)
+        # self.vizibility = True
 
 
 class RedBall(Ball):
-    COLOR = RED
-    points = 1
+    # COLOR = RED
+    # points = 1
 
-    def __init__(self, coords, velocity=Vec2D(0, 0)):
-        self.coords = Vec2D(coords)
-        self.velocity = velocity
-        self.pos = Vec2D(coords)
-        self.vizibility = True
+    def __init__(self, **kwds):
+        self.COLOR = RED
+        self.points = 1
+        super().__init__(**kwds)
+        # self.coords = Vec2D(coords)
+        # self.velocity = velocity
+        # self.pos = Vec2D(coords)
+        # self.vizibility = True

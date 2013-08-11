@@ -2,9 +2,8 @@ from settings import *
 
 
 class Player():
-    points = 0
-
     def __init__(self, name):
+        self.points = 0
         self.name = name
         self.target = RED_TARGET
 

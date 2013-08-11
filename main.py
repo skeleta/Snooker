@@ -6,7 +6,8 @@ from settings import *
 
 def main():
     pygame.init()
-    the_game = Game(SCREEN_SIZE)
+    the_game = Game()
+    screen = pygame.display.set_mode(SCREEN_SIZE)
     running = True
 
     while running:
@@ -22,8 +23,8 @@ def main():
         the_game.game_surface.blit(the_game.table, TABLE_POS)
         the_game.game_handler()
         the_game.draw_balls()
-        the_game.screen.blit(the_game.game_surface, (0, 0))
-        the_game.screen.blit(Score.score_board, (408, 530))
+        screen.blit(the_game.game_surface, (0, 0))
+        screen.blit(Score.score_board, (408, 530))
         pygame.display.flip()
         the_game.clock.tick(100)
     pygame.quit()

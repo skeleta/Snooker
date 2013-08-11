@@ -11,10 +11,6 @@ from player import Player
 
 class Game():
     clock = pygame.time.Clock()
-    moving_balls = deque([])
-    hitted_balls = deque([])
-    foul = False
-    hit = False
     pockets = {'ur_pocket': [Vec2D(UR_POCKET), Vec2D(125, 94), Vec2D(113, 78), Vec2D(143, 75), Vec2D(128, 63)],
                'ul_pocket': [Vec2D(UL_POCKET), Vec2D(125, 480), Vec2D(113, 495), Vec2D(143, 498), Vec2D(128, 510)],
                'dl_pocket': [Vec2D(DL_POCKET), Vec2D(974, 480), Vec2D(986, 495), Vec2D(956, 498), Vec2D(971, 510)],
@@ -22,33 +18,34 @@ class Game():
                'ml_pocket': [Vec2D(ML_POCKET), Vec2D(530, 498), Vec2D(539, 510), Vec2D(568, 498), Vec2D(560, 510)],
                'mr_pocket': [Vec2D(MR_POCKET), Vec2D(530, 75), Vec2D(539, 63), Vec2D(568, 75), Vec2D(560, 63)]}
 
-    def __init__(self, size):
-        self.screen = pygame.display.set_mode(size)
+    def __init__(self):
+        self.moving_balls = deque([])
+        self.hitted_balls = deque([])
         pygame.display.set_caption('Cool Snooker')
         self.table = pygame.image.load('Snooker_table3.png')
         self.game_surface = pygame.Surface(SCREEN_SIZE)
-        self.white_ball = balls.WhiteBall(POS_WHITE)
-        self.redball1 = balls.RedBall(POS_RED1)
-        self.redball2 = balls.RedBall(POS_RED2)
-        self.redball3 = balls.RedBall(POS_RED3)
-        self.redball4 = balls.RedBall(POS_RED4)
-        self.redball5 = balls.RedBall(POS_RED5)
-        self.redball6 = balls.RedBall(POS_RED6)
-        self.redball7 = balls.RedBall(POS_RED7)
-        self.redball8 = balls.RedBall(POS_RED8)
-        self.redball9 = balls.RedBall(POS_RED9)
-        self.redball10 = balls.RedBall(POS_RED10)
-        self.redball11 = balls.RedBall(POS_RED11)
-        self.redball12 = balls.RedBall(POS_RED12)
-        self.redball13 = balls.RedBall(POS_RED13)
-        self.redball14 = balls.RedBall(POS_RED14)
-        self.redball15 = balls.RedBall(POS_RED15)
-        self.black = balls.ColorBall(POS_BLACK, BLACK, 7)
-        self.pink = balls.ColorBall(POS_PINK, PINK, 6)
-        self.blue = balls.ColorBall(POS_BLUE, BLUE, 5)
-        self.brown = balls.ColorBall(POS_BROWN, BROWN, 4)
-        self.green = balls.ColorBall(POS_GREEN, GREEN, 3)
-        self.yellow = balls.ColorBall(POS_YELLOW, YELLOW, 2)
+        self.white_ball = balls.WhiteBall(coords=POS_WHITE)
+        self.redball1 = balls.RedBall(coords=POS_RED1)
+        self.redball2 = balls.RedBall(coords=POS_RED2)
+        self.redball3 = balls.RedBall(coords=POS_RED3)
+        self.redball4 = balls.RedBall(coords=POS_RED4)
+        self.redball5 = balls.RedBall(coords=POS_RED5)
+        self.redball6 = balls.RedBall(coords=POS_RED6)
+        self.redball7 = balls.RedBall(coords=POS_RED7)
+        self.redball8 = balls.RedBall(coords=POS_RED8)
+        self.redball9 = balls.RedBall(coords=POS_RED9)
+        self.redball10 = balls.RedBall(coords=POS_RED10)
+        self.redball11 = balls.RedBall(coords=POS_RED11)
+        self.redball12 = balls.RedBall(coords=POS_RED12)
+        self.redball13 = balls.RedBall(coords=POS_RED13)
+        self.redball14 = balls.RedBall(coords=POS_RED14)
+        self.redball15 = balls.RedBall(coords=POS_RED15)
+        self.black = balls.ColorBall(coords=POS_BLACK, COLOR=BLACK, points=7)
+        self.pink = balls.ColorBall(coords=POS_PINK, COLOR=PINK, points=6)
+        self.blue = balls.ColorBall(coords=POS_BLUE, COLOR=BLUE, points=5)
+        self.brown = balls.ColorBall(coords=POS_BROWN, COLOR=BROWN, points=4)
+        self.green = balls.ColorBall(coords=POS_GREEN, COLOR=GREEN, points=3)
+        self.yellow = balls.ColorBall(coords=POS_YELLOW, COLOR=YELLOW, points=2)
         self.firs_player = Player("Selby")
         self.second_player = Player("O'Sullivan")
         self.all_balls = deque([
@@ -67,6 +64,8 @@ class Game():
         self.next_target_ball = next(self.colol_target_order)
         self.condition = "still red"
         self.score = Score()
+        self.foul = False
+        self.hit = False
 
     def ball_update(self):
         for a in range(0, len(self.all_balls)-1):
@@ -88,36 +87,6 @@ class Game():
                             self.hitted_balls.append(ball)
                         next_ball.coords += Vec2D.normalized(-delta) * (delta.length - ball.RADIUS * 2)
                         self.ball_collision(ball, next_ball)
-                # if (next_ball.coords - ball.coords).length <= ball.RADIUS * 2:
-                #     ball_axis = Vec2D.perpendicular_normal(ball.velocity)
-                #     next_ball_axis = Vec2D.perpendicular_normal(next_ball.velocity)
-                #     if ball.velocity.length > 0 and next_ball.velocity.length > 0:
-                #         ball.coords += Vec2D.normalized(delta) * (delta.length - ball.RADIUS * 2)
-                #         next_ball.coords += Vec2D.normalized(-delta) * (delta.length - ball.RADIUS * 2)
-                #         sin = self.sin(ball.velocity, delta)
-                #         ball.velocity -= 2 * (ball.velocity.dot(ball_axis)) * ball_axis
-                #         ball.velocity *= sin
-                #         next_ball.velocity -= 2 * (next_ball.velocity.dot(next_ball_axis)) * next_ball_axis
-                #         next_ball.velocity *= (1 - sin)
-                #     elif ball.velocity.length > 0:
-                #         if isinstance(ball, balls.WhiteBall):
-                #             self.hitted_balls.append(next_ball)
-                #         ball.coords += Vec2D.normalized(delta) * (delta.length - ball.RADIUS * 2)
-                #         sin = self.sin(ball.velocity, delta)
-                #         old_velocity = ball.velocity.length
-                #         ball.velocity -= 2 * (ball.velocity.dot(ball_axis)) * ball_axis
-                #         ball.velocity *= sin
-                #         next_ball.velocity = Vec2D.normalized(delta) * old_velocity * (1 - sin)
-                #     elif next_ball.velocity.length > 0:
-                #         if isinstance(next_ball, balls.WhiteBall):
-                #             self.hitted_balls.append(ball)
-                #         next_ball.coords += Vec2D.normalized(-delta) * (delta.length - ball.RADIUS * 2)
-                #         delta = -delta
-                #         sin = self.sin(next_ball.velocity, delta)
-                #         old_velocity = next_ball.velocity.length
-                #         next_ball.velocity -= 2 * (next_ball.velocity.dot(next_ball_axis)) * next_ball_axis
-                #         next_ball.velocity *= sin
-                #         ball.velocity = Vec2D.normalized(delta) * old_velocity * (1 - sin)
 
     def draw_balls(self):
         for ball in self.all_balls:

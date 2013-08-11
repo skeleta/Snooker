@@ -60,39 +60,6 @@ class Ball():
                             pocket_wall_vec.dot(pocket_wall_vec)) *\
                             pocket_wall_vec - ball.velocity
 
-    # def _ball_update(all_balls):
-    #     for a in range(0, len(all_balls)-1):
-    #         for b in range(a+1, len(all_balls)):
-    #             ball, next_ball = all_balls[a], all_balls[b]
-    #             delta = next_ball.coords - ball.coords
-    #             if delta.length <= ball.RADIUS * 2:
-    #                 ball_axis = Vec2D.perpendicular_normal(ball.velocity)
-    #                 next_ball_axis = Vec2D.perpendicular_normal(next_ball.velocity)
-    #                 if ball.velocity.length > 0 and next_ball.velocity.length > 0:
-    #                     ball.coords += Vec2D.normalized(delta) * (delta.length - ball.RADIUS * 2)
-    #                     next_ball.coords += Vec2D.normalized(-delta) * (delta.length - ball.RADIUS * 2)
-    #                     sin = -math.sin(math.radians(Vec2D.get_angle_between(ball.velocity, delta)))
-    #                     ball.velocity -= 2 * (ball.velocity.dot(ball_axis)) * ball_axis
-    #                     ball.velocity *= sin
-    #                     next_ball.velocity -= 2 * (next_ball.velocity.dot(next_ball_axis)) * next_ball_axis
-    #                     next_ball.velocity *= (1 - sin)
-    #                 elif ball.velocity.length > 0:
-    #                     ball.coords += Vec2D.normalized(delta) * (delta.length - ball.RADIUS * 2)
-    #                     sin = -math.sin(math.radians(Vec2D.get_angle_between(ball.velocity, delta)))
-    #                     old_velocity = ball.velocity.length
-    #                     ball.velocity -= 2 * (ball.velocity.dot(ball_axis)) * ball_axis
-    #                     ball.velocity *= sin
-    #                     next_ball.velocity = Vec2D.normalized(delta) * old_velocity * (1 - sin)
-    #                 elif next_ball.velocity.length > 0:
-    #                     next_ball.coords += Vec2D.normalized(-delta) * (delta.length - ball.RADIUS * 2)
-    #                     delta = -delta
-    #                     sin = -math.sin(math.radians(Vec2D.get_angle_between(next_ball.velocity, delta)))
-    #                     old_velocity = next_ball.velocity.length
-    #                     next_ball.velocity -= 2 * (next_ball.velocity.dot(next_ball_axis)) * next_ball_axis
-    #                     next_ball.velocity *= sin
-    #                     ball.velocity = Vec2D.normalized(delta) * old_velocity * (1 - sin)
-
-
 
 class ColorBall(Ball):
     def __init__(self, coords, COLOR, points, velocity=Vec2D(0, 0)):

@@ -21,10 +21,10 @@ def main():
                 running = False
         the_game.game_surface.fill(BACKGROUND_COLOR)
         the_game.game_surface.blit(the_game.table, TABLE_POS)
+        the_game.game_surface.blit(Score.score_board, (408, 530))
         the_game.game_handler()
         the_game.draw_balls()
         screen.blit(the_game.game_surface, (0, 0))
-        screen.blit(Score.score_board, (408, 530))
         pygame.display.flip()
         the_game.clock.tick(100)
     pygame.quit()

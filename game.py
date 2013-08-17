@@ -47,7 +47,7 @@ class Game():
         self.brown = balls.ColorBall(coords=POS_BROWN, COLOR=BROWN, points=4)
         self.green = balls.ColorBall(coords=POS_GREEN, COLOR=GREEN, points=3)
         self.yellow = balls.ColorBall(coords=POS_YELLOW, COLOR=YELLOW, points=2)
-        self.firs_player = Player("Selby")
+        self.first_player = Player("Selby")
         self.second_player = Player("O'Sullivan")
         self.all_balls = deque([
                                 self.redball1, self.redball2, self.redball3,
@@ -59,7 +59,7 @@ class Game():
                                 self.blue, self.brown, self.green, self.yellow
                                 ])
         self.cue = Cue()
-        self.turn = self.firs_player
+        self.turn = self.first_player
         self.board_status = STATICK
         self.colol_target_order = iter([x for x in range(2, 8)])
         self.next_target_ball = next(self.colol_target_order)
@@ -89,13 +89,13 @@ class Game():
                         next_ball.coords += Vec2D.normalized(-delta) * (delta.length - ball.RADIUS * 2)
                         self.ball_collision(ball, next_ball)
 
-    def draw_balls(self):
-        self.potted = []
+    def balls_handler(self):
+        # self.potted = []
         for ball in self.all_balls:
-            if ball.velocity.length >= 0:
+            if ball.velocity.length > 0:
                 ball.move(self.pockets)
-                if ball.is_potted:
-                    self.potted.append(ball)
+            if ball.is_potted:
+                self.potted.append(ball)
             if ball.vizibility == True:
                 pygame.draw.circle(self.game_surface, ball.COLOR,\
                 (int(ball.coords.x), int(ball.coords.y)), ball.RADIUS)
@@ -139,11 +139,14 @@ class Game():
         else:
             self.board_status = NON_STATICK
 
-    def potted_ball_handler(self, potted):
+    def potted_ball_handler(self, potted, color_points=None):
         red_ball = 0
         color_ball = 0
         points = 0
-        color_points = [0]
+        if color_points is None:
+            color_points = [0]
+        else:
+            color_points = color_points
         for ball in potted:
             if isinstance(ball, balls.WhiteBall):
                 self.foul = True
@@ -183,7 +186,7 @@ class Game():
             self.turn.change_target()
 
     def game_handler(self):
-        self.score.show_score(self.firs_player, self.second_player, self.turn)
+        self.score.show_score(self.first_player, self.second_player, self.turn)
         self.ball_update()
         self.if_statick_board()
         self.check_condition()
@@ -211,7 +214,8 @@ class Game():
                                 self.turn.points += FOUL_POINTS
                         else:
                             self.foul = True
-                            self.potted_ball_handler(self.potted)
+                            points = [self.hitted_balls[0].points]
+                            self.potted_ball_handler(self.potted, color_points=points)
                     if self.potted and self.foul is not True:
                         self.potted_ball_handler(self.potted)
                     elif self.foul is not True:
@@ -224,10 +228,10 @@ class Game():
                 self.potted_ball_handler(self.potted)
 
     def change_turn(self):
-        if self.turn == self.firs_player:
+        if self.turn == self.first_player:
             self.turn = self.second_player
         else:
-            self.turn = self.firs_player
+            self.turn = self.first_player
         self.turn.target = RED_TARGET
 
     def who_plays(self):

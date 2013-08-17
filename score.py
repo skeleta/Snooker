@@ -3,8 +3,10 @@ from settings import *
 
 class Score():
     pygame.font.init()
-    myfont = pygame.font.SysFont("monospace", 20, True)
-    score_board = pygame.Surface((400, 50))
+
+    def __init__(self):
+        self.myfont = pygame.font.SysFont("monospace", 20, True)
+        self.score_board = pygame.Surface((400, 50))
 
     def show_score(self, first_player, second_player, turn):
         self.score_board.fill(BACKGROUND_COLOR)

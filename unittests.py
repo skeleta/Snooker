@@ -1,5 +1,6 @@
 import unittest
 import pygame
+import balls
 from settings import *
 from game import Game
 from vec2D import Vec2d as Vec2D
@@ -31,7 +32,9 @@ class GameTestWithRedBallsNoBallHitted(unittest.TestCase):
         self.assertEqual(self.game.turn.points, FOUL_POINTS)
 
     def test_two_red_potted(self):
-        self.game.potted = [self.game.redball1, self.game.redball2]
+        self.game.redball1.is_potted = True
+        self.game.redball2.is_potted = True
+        self.game.balls_handler()
         self.game.potted_ball_handler(self.game.potted)
         self.assertNotIn(self.game.redball1, self.game.all_balls)
         self.assertNotIn(self.game.redball2, self.game.all_balls)
@@ -44,6 +47,7 @@ class GameTestWithRedBallsNoBallHitted(unittest.TestCase):
         self.game.game_handler()
         self.assertEqual(self.game.turn.points, 5)
         self.assertEqual(self.game.first_player.points, 0)
+        self.assertNotIn(self.game.redball1, self.game.all_balls)
 
 
 class GameTestRedballToHit(unittest.TestCase):
@@ -260,7 +264,85 @@ class GameTestRedballToHit(unittest.TestCase):
         self.assertEqual(self.game.pink.coords, Vec2D(POS_PINK))
 
     def test_color_hit_red_potted(self):
-        pass    
+        self.game.hitted_balls.appendleft(self.game.pink)
+        self.game.redball2.coords = Vec2D(UL_POCKET)
+        self.game.redball2.velocity = Vec2D(20, 40)
+        self.game.balls_handler()
+        self.assertTrue(self.game.redball2.is_potted)
+        self.game.game_handler()
+        self.assertEqual(self.game.turn.points, 6)
+        self.assertEqual(self.game.turn.target, RED_TARGET)
+        self.assertEqual(self.game.first_player.points, 0)
+        self.assertEqual(self.game.second_player, self.game.turn)
+        self.assertFalse(self.game.redball2.is_potted)
+        self.assertNotIn(self.game.redball2, self.game.all_balls)
+
+
+class GameTestColorBallToHit(unittest.TestCase):
+    def setUp(self):
+        self.game = Game()
+        self.game.turn.change_target()
+
+    def tearDown(self):
+        self.game = None
+
+    def test_target_change(self):
+        self.assertEqual(self.game.turn.target, COLOR_TARGET)
+        self.game.hitted_balls.append(self.game.redball1)
+        self.game.game_handler()
+        self.assertEqual(self.game.turn.points, FOUL_POINTS)
+        self.assertEqual(self.game.second_player, self.game.turn)
+        self.assertEqual(self.game.turn.target, RED_TARGET)
+
+    def test_color_hit_white_and_red_and_color_potted(self):
+        self.game.hitted_balls.appendleft(self.game.black)
+        self.game.white_ball.coords = Vec2D(UR_POCKET)
+        self.game.pink.coords = Vec2D(UL_POCKET)
+        self.game.white_ball.velocity = Vec2D(10, 50)
+        self.game.pink.velocity = Vec2D(20, 40)
+        self.game.redball8.is_potted = True
+        self.assertFalse(self.game.white_ball.is_potted)
+        self.assertFalse(self.game.pink.is_potted)
+        self.game.balls_handler()
+        self.assertTrue(self.game.white_ball.is_potted)
+        self.assertTrue(self.game.pink.is_potted)
+        self.game.game_handler()
+        self.assertEqual(self.game.turn.points, 6)
+        self.assertEqual(self.game.turn.target, RED_TARGET)
+        self.assertEqual(self.game.first_player.points, 0)
+        self.assertEqual(self.game.second_player, self.game.turn)
+        self.assertFalse(self.game.white_ball.is_potted)
+        self.assertEqual(self.game.white_ball.coords, Vec2D(POS_WHITE))
+        self.assertEqual(self.game.pink.coords, Vec2D(POS_PINK))
+        self.assertNotIn(self.game.redball8, self.game.all_balls)
+
+
+class GameTestNoRedBallAtTheTable(unittest.TestCase):
+    def setUp(self):
+        self.game = Game()
+        no_red_balls = []
+        for ball in self.game.all_balls:
+            if not isinstance(ball, balls.RedBall):
+                no_red_balls.append(ball)
+        self.game.all_balls = no_red_balls
+        self.game.turn.change_target()
+
+    def tearDown(self):
+        self.game = None
+
+    def test_condition_change(self):
+        self.assertEqual(self.game.turn.target, COLOR_TARGET)
+        self.game.hit = True
+        self.game.hitted_balls.append(self.game.blue)
+        self.game.game_handler()
+        self.assertEqual(self.game.condition, 'still red')
+        self.assertEqual(self.game.turn.target, RED_TARGET)
+        self.assertEqual(self.game.turn.points, 0)
+        self.game.hit = True
+        self.game.hitted_balls.append(self.game.yellow)
+        self.game.game_handler()
+        self.assertEqual(self.game.condition, 'red free')
+        self.assertEqual(self.game.turn.points, 0)
 
 if __name__ == '__main__':
     unittest.main()

@@ -94,7 +94,7 @@ class Game():
         for ball in self.all_balls:
             if ball.velocity.length > 0:
                 ball.move(self.pockets)
-            if ball.is_potted:
+            if ball.is_potted and ball not in self.potted:
                 self.potted.append(ball)
             if ball.vizibility == True:
                 pygame.draw.circle(self.game_surface, ball.COLOR,\

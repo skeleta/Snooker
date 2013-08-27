@@ -1,4 +1,4 @@
-from settings import *
+from settings import RED_TARGET, COLOR_TARGET
 
 
 class Player():

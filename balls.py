@@ -6,13 +6,10 @@ from vec2D import Vec2d as Vec2D
 
 class Ball():
     RADIUS = 8
-    potted = []
 
     def __init__(self, coords, **kwds):
         self.coords = Vec2D(coords)
         self.pos = Vec2D(coords)
-        # self.points = points
-        # self.COLOR = COLOR
         self.velocity = Vec2D(0, 0)
         self.vizibility = True
         self.is_potted = False
@@ -35,8 +32,6 @@ class Ball():
                 self.pocket_walls_collision(pockets[pocket][1], pockets[pocket][2])
                 self.pocket_walls_collision(pockets[pocket][3], pockets[pocket][4])
                 if (self.coords - pockets[pocket][0]).length <= POCKET_R:
-                    # if self not in Ball.potted:
-                    #     Ball.potted.append(self)
                     self.vizibility = False
                     self.coords = Vec2D(1000, 1000) + self.pos
                     self.velocity = Vec2D(0, 0)
@@ -83,33 +78,18 @@ class ColorBall(Ball):
 
 
 class WhiteBall(Ball):
-    # COLOR = WHITE
-    # velocity = Vec2D(0, 0) # 352,-100 - да се подобри сблусъка
-    # grabed = False
-    # points = 4
-
     def __init__(self, **kwds):
         self.COLOR = WHITE
         self.grabed = False
         self.points = 4
         super().__init__(**kwds)
-        # self.coords = Vec2D(coords)
-        # self.pos = Vec2D(coords)
-        # self.vizibility = True
 
 
 class RedBall(Ball):
-    # COLOR = RED
-    # points = 1
-
     def __init__(self, **kwds):
         self.COLOR = RED
         self.points = 1
         super().__init__(**kwds)
-        # self.coords = Vec2D(coords)
-        # self.velocity = velocity
-        # self.pos = Vec2D(coords)
-        # self.vizibility = True
 
     def move(self, potted):
         super().move(potted)

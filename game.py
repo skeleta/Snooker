@@ -7,6 +7,7 @@ from collections import deque
 from cue import Cue
 from score import Score
 from player import Player
+from draw import Draw
 
 
 class Game():
@@ -24,7 +25,6 @@ class Game():
         self.potted = []
         pygame.display.set_caption('Cool Snooker')
         self.table = pygame.image.load('Snooker_table3.png')
-        self.game_surface = pygame.Surface(SCREEN_SIZE)
         self.white_ball = balls.WhiteBall(coords=POS_WHITE)
         self.redball1 = balls.RedBall(coords=POS_RED1)
         self.redball2 = balls.RedBall(coords=POS_RED2)
@@ -67,6 +67,7 @@ class Game():
         self.score = Score()
         self.foul = False
         self.hit = False
+        self.painter = Draw()
 
     def ball_update(self):
         for a in range(0, len(self.all_balls)-1):
@@ -90,19 +91,16 @@ class Game():
                         self.ball_collision(ball, next_ball)
 
     def balls_handler(self):
-        # self.potted = []
         for ball in self.all_balls:
             if ball.velocity.length > 0:
                 ball.move(self.pockets)
             if ball.is_potted and ball not in self.potted:
                 self.potted.append(ball)
             if ball.vizibility == True:
-                pygame.draw.circle(self.game_surface, ball.COLOR,\
-                (int(ball.coords.x), int(ball.coords.y)), ball.RADIUS)
+                self.painter.draw_balls(ball)
 
     def white_ball_grab(self):
         mouse_pos = Vec2D(pygame.mouse.get_pos())
-        # print(mouse_pos)
         if self.white_ball.coords.x-8 < mouse_pos.x < \
                     self.white_ball.coords.x+8 and self.white_ball.coords.y-8\
                     < mouse_pos.y < self.white_ball.coords.y+8:
@@ -115,11 +113,9 @@ class Game():
         if self.white_ball.grabed:
             self.white_ball.coords = mouse_pos
 
-    def cue_draw(self):
+    def cue_handler(self):
         start_pos, end_pos = self.cue.get_cue_pos(self.white_ball.coords)
-        pygame.draw.line(self.game_surface, self.cue.color, \
-        (int(start_pos.x), int(start_pos.y)), (int(end_pos.x),\
-        int(end_pos.y)), CUE_WIDTH)
+        self.painter.cue_draw(self.cue, start_pos, end_pos)
         keys = pygame.key.get_pressed()
         if keys[pygame.K_KP_ENTER]:
             new_velocity = Vec2D.normalized(start_pos - end_pos)
@@ -166,13 +162,12 @@ class Game():
                 ball.is_potted = False
             else:
                 self.ball_return(ball)
-            # self.potted.remove(ball)
             ball.is_potted = False
         self.potted = []
         if color_ball > 1 or (red_ball > 0 and color_ball > 0):
             self.foul = True
         if self.foul is True:
-            print("Foul wrong ball potted")
+            # print("Foul wrong ball potted")
             self.change_turn()
             if max(color_points) > FOUL_POINTS:
                 self.turn.points += max(color_points)
@@ -195,9 +190,9 @@ class Game():
             if not self.hitted_balls and self.hit is True and not self.potted:
                 self.change_turn()
                 self.turn.points += FOUL_POINTS
-                print("Foul no ball hit")
+                # print("Foul no ball hit")
             self.hit = False
-            self.cue_draw()
+            self.cue_handler()
             if self.hitted_balls:
                 if self.condition == "still red":
                     if (isinstance(self.hitted_balls[0], balls.ColorBall)\
@@ -207,7 +202,7 @@ class Game():
                         if not self.potted:
                             self.foul = True
                             self.change_turn()
-                            print("Foul wrong ball hit")
+                            # print("Foul wrong ball hit")
                             if self.hitted_balls[0].points > FOUL_POINTS:
                                 self.turn.points += self.hitted_balls[0].points
                             else:
@@ -219,7 +214,7 @@ class Game():
                     if self.potted and self.foul is not True:
                         self.potted_ball_handler(self.potted)
                     elif self.foul is not True:
-                        print("No ball poted")
+                        # print("No ball poted")
                         self.change_turn()
                 else:
                     self.no_red_game_handler()
@@ -258,6 +253,7 @@ class Game():
                 flag = self.chek_for_place(potted_ball, pos=returning_pos)
                 if flag is not True:
                     found_place = True
+                    break
                 returning_pos.x += 1
             potted_ball.coords = returning_pos
         else:
@@ -269,7 +265,7 @@ class Game():
         for ball in self.all_balls:
             if ball is not potted_ball:
                 delta = ball.coords - pos
-                if delta.length <= ball.RADIUS * 2:
+                if delta.length < ball.RADIUS * 2:
                     return True
         return False
 
@@ -286,12 +282,12 @@ class Game():
                 self.condition = "red free"
 
     def no_red_game_handler(self):
+        points = [0]
         if self.hitted_balls[0].points == self.next_target_ball:
             if self.potted:
                 if len(self.potted) > 1:
-                    print("Foul more then 1 colorball potted")
+                    # print("Foul more then 1 colorball potted")
                     self.change_turn()
-                    points = [0]
                     for ball in self.potted:
                         points.append(ball.points)
                         self.ball_return(ball)
@@ -309,9 +305,9 @@ class Game():
                             self.next_target_ball = next(self.colol_target_order)
                         except:
                             self.next_target_ball = False
-                            print("Game finished")
+                            # print("Game finished")
                     else:
-                        print("Foul wrong colorball potted")
+                        # print("Foul wrong colorball potted")
                         self.change_turn()
                         if self.potted[0].points > FOUL_POINTS:
                             self.turn.points += self.potted[0].points
@@ -321,18 +317,18 @@ class Game():
                     self.potted[0].is_potted = False
                     self.potted.remove(self.potted[0])
             else:
-                print("No colorball potted")
+                # print("No colorball potted")
                 self.change_turn()
         else:
-            print("Foul wrong colorball hited")
+            # print("Foul wrong colorball hited")
             self.change_turn()
             if self.potted:
-                points = [0]
                 for ball in self.potted:
                     points.append(ball.points)
                     self.ball_return(ball)
                     ball.is_potted = False
                 self.potted = []
+                points.append(self.hitted_balls[0].points)
                 if max(points) > FOUL_POINTS:
                     self.turn.points += max(points)
                 else:

@@ -19,12 +19,12 @@ def main():
             key = pygame.key.get_pressed()
             if key[pygame.K_ESCAPE]:
                 running = False
-        the_game.game_surface.fill(BACKGROUND_COLOR)
-        the_game.game_surface.blit(the_game.table, TABLE_POS)
-        the_game.game_surface.blit(the_game.score.score_board, (408, 530))
+        the_game.painter.game_surface.fill(BACKGROUND_COLOR)
+        the_game.painter.game_surface.blit(the_game.table, TABLE_POS)
+        the_game.painter.game_surface.blit(the_game.score.score_board, (408, 530))
         the_game.game_handler()
         the_game.balls_handler()
-        screen.blit(the_game.game_surface, (0, 0))
+        screen.blit(the_game.painter.game_surface, (0, 0))
         pygame.display.flip()
         the_game.clock.tick(100)
     pygame.quit()

@@ -18,19 +18,20 @@ class Ball():
         check = Vec2D(self.velocity)
         self.velocity -= Vec2D.normalized(self.velocity) * FRICTION * TIMER
         self.coords += self.velocity * TIMER
-        if check.x * self.velocity.x < 0:
+        if check.x * self.velocity.x < 0 or check.y * self.velocity.y < 0:
             self.velocity = Vec2D(0, 0)
         if int(self.coords.x) not in range(139, 534) and\
                 int(self.coords.x) not in range(564, 960)\
                 and int(self.coords.y) not in range(90, 484):
-
             """Ако някоя от топките е в обсега на някой от джобовете
             влизаме в този if и почваме да следим за сблъсък със стената на
-            някой от джобовете или за попадение в джоба"""
-
+            някой от джобовете или за попадение в джоба.
+            """
             for pocket in pockets:
-                self.pocket_walls_collision(pockets[pocket][1], pockets[pocket][2])
-                self.pocket_walls_collision(pockets[pocket][3], pockets[pocket][4])
+                self.pocket_walls_collision(pockets[pocket][1],
+                                            pockets[pocket][2])
+                self.pocket_walls_collision(pockets[pocket][3],
+                                            pockets[pocket][4])
                 if (self.coords - pockets[pocket][0]).length <= POCKET_R:
                     self.vizibility = False
                     self.coords = Vec2D(1000, 1000) + self.pos
@@ -61,10 +62,10 @@ class Ball():
                 math.fabs(end_point.y - start_point.y) and\
                 distance < self.RADIUS:
             self.coords = Vec2D.normalized(incoming_vec - projected) *\
-                          self.RADIUS + start_point + projected
-            self.velocity = 2 * (self.velocity.dot(pocket_wall_vec) /\
-                            pocket_wall_vec.dot(pocket_wall_vec)) *\
-                            pocket_wall_vec - self.velocity
+                self.RADIUS + start_point + projected
+            self.velocity = 2 * (self.velocity.dot(pocket_wall_vec)
+                                 / pocket_wall_vec.dot(pocket_wall_vec)) *\
+                pocket_wall_vec - self.velocity
 
 
 class ColorBall(Ball):
@@ -83,6 +84,9 @@ class WhiteBall(Ball):
         self.grabed = False
         self.points = 4
         super().__init__(**kwds)
+
+    def move(self, potted):
+        super().move(potted)
 
 
 class RedBall(Ball):

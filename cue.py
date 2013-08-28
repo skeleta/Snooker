@@ -11,7 +11,6 @@ class Cue:
         self.angle = 0
         self.r = CUE_DEFAULT_R
 
-
     def get_cue_pos(self, coords):
         start_pos = Vec2D(0, 0)
         end_pos = Vec2D(0, 0)

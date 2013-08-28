@@ -4,11 +4,11 @@ import balls
 from settings import *
 from game import Game
 from vec2D import Vec2d as Vec2D
-from contextlib import contextmanager
 
 
 class GameTestWithRedBallsNoBallHitted(unittest.TestCase):
     pygame.init()
+
     def setUp(self):
         self.game = Game()
 
@@ -34,8 +34,7 @@ class GameTestWithRedBallsNoBallHitted(unittest.TestCase):
         self.game.game_handler()
         self.assertEqual(self.game.turn.points, 4)
         self.assertEqual(self.game.turn, self.game.second_player)
-        
-        
+
     def test_statick_board(self):
         self.game.if_statick_board()
         self.assertEqual(self.game.board_status, STATICK)
@@ -341,7 +340,6 @@ class GameTestColorBallToHit(unittest.TestCase):
         self.assertEqual(self.game.turn.points, 2)
         self.assertEqual(self.game.first_player, self.game.turn)
         self.assertEqual(self.game.turn.target, RED_TARGET)
-        
 
 
 class GameTestNoRedBallAtTheTable(unittest.TestCase):
@@ -362,20 +360,20 @@ class GameTestNoRedBallAtTheTable(unittest.TestCase):
         self.game.hit = True
         self.game.hitted_balls.append(self.game.blue)
         self.game.game_handler()
-        self.assertEqual(self.game.condition, 'still red')
+        self.assertEqual(self.game.condition, STILL_RED)
         self.assertEqual(self.game.turn.target, RED_TARGET)
         self.assertEqual(self.game.turn.points, 0)
         self.game.hit = True
         self.game.hitted_balls.append(self.game.yellow)
         self.game.game_handler()
-        self.assertEqual(self.game.condition, 'red free')
+        self.assertEqual(self.game.condition, RED_FREE)
         self.assertEqual(self.game.turn.points, 0)
 
     def test_correct_hit(self):
         self.game.turn.change_target()
         self.game.hitted_balls.appendleft(self.game.yellow)
         self.game.game_handler()
-        self.assertEqual(self.game.condition, 'red free')
+        self.assertEqual(self.game.condition, RED_FREE)
         self.assertEqual(self.game.turn.points, 0)
         self.assertEqual(self.game.turn, self.game.second_player)
         self.assertEqual(self.game.first_player.points, 0)
@@ -388,7 +386,7 @@ class GameTestNoRedBallAtTheTable(unittest.TestCase):
         self.game.yellow.velocity = Vec2D(10, 50)
         self.game.balls_handler()
         self.game.game_handler()
-        self.assertEqual(self.game.condition, 'red free')
+        self.assertEqual(self.game.condition, RED_FREE)
         self.assertEqual(self.game.turn.points, 2)
         self.assertEqual(self.game.turn, self.game.first_player)
         self.assertEqual(self.game.second_player.points, 0)
@@ -402,7 +400,7 @@ class GameTestNoRedBallAtTheTable(unittest.TestCase):
         self.game.blue.velocity = Vec2D(10, 50)
         self.game.balls_handler()
         self.game.game_handler()
-        self.assertEqual(self.game.condition, 'red free')
+        self.assertEqual(self.game.condition, RED_FREE)
         self.assertEqual(self.game.turn.points, 5)
         self.assertEqual(self.game.turn, self.game.second_player)
         self.assertEqual(self.game.first_player.points, 0)
@@ -415,7 +413,7 @@ class GameTestNoRedBallAtTheTable(unittest.TestCase):
         self.game.hitted_balls.appendleft(self.game.pink)
         self.game.balls_handler()
         self.game.game_handler()
-        self.assertEqual(self.game.condition, 'red free')
+        self.assertEqual(self.game.condition, RED_FREE)
         self.assertEqual(self.game.turn.points, 6)
         self.assertEqual(self.game.next_target_ball, 2)
         self.assertEqual(self.game.turn, self.game.second_player)
@@ -427,7 +425,7 @@ class GameTestNoRedBallAtTheTable(unittest.TestCase):
         self.game.yellow.velocity = Vec2D(10, 50)
         self.game.balls_handler()
         self.game.game_handler()
-        self.assertEqual(self.game.condition, 'red free')
+        self.assertEqual(self.game.condition, RED_FREE)
         self.assertEqual(self.game.turn.points, FOUL_POINTS)
         self.assertEqual(self.game.turn, self.game.second_player)
         self.assertEqual(self.game.first_player.points, 0)
@@ -446,7 +444,7 @@ class GameTestNoRedBallAtTheTable(unittest.TestCase):
         self.game.black.velocity = Vec2D(10, 50)
         self.game.balls_handler()
         self.game.game_handler()
-        self.assertEqual(self.game.condition, 'red free')
+        self.assertEqual(self.game.condition, RED_FREE)
         self.assertEqual(self.game.turn.points, 7)
         self.assertEqual(self.game.turn, self.game.second_player)
         self.assertEqual(self.game.first_player.points, 0)
@@ -463,7 +461,7 @@ class GameTestNoRedBallAtTheTable(unittest.TestCase):
         self.game.yellow.velocity = Vec2D(10, 50)
         self.game.balls_handler()
         self.game.game_handler()
-        self.assertEqual(self.game.condition, 'red free')
+        self.assertEqual(self.game.condition, RED_FREE)
         self.assertEqual(self.game.turn.points, 5)
         self.assertEqual(self.game.turn, self.game.second_player)
         self.assertEqual(self.game.first_player.points, 0)
@@ -476,7 +474,7 @@ class GameTestNoRedBallAtTheTable(unittest.TestCase):
         self.game.hitted_balls.appendleft(self.game.green)
         self.game.balls_handler()
         self.game.game_handler()
-        self.assertEqual(self.game.condition, 'red free')
+        self.assertEqual(self.game.condition, RED_FREE)
         self.assertEqual(self.game.turn.points, FOUL_POINTS)
         self.assertEqual(self.game.next_target_ball, 2)
         self.assertEqual(self.game.turn, self.game.second_player)
@@ -490,7 +488,7 @@ class GameTestNoRedBallAtTheTable(unittest.TestCase):
         self.game.brown.velocity = Vec2D(10, 50)
         self.game.balls_handler()
         self.game.game_handler()
-        self.assertEqual(self.game.condition, 'red free')
+        self.assertEqual(self.game.condition, RED_FREE)
         self.assertEqual(self.game.turn.points, FOUL_POINTS)
         self.assertEqual(self.game.turn, self.game.second_player)
         self.assertEqual(self.game.first_player.points, 0)
@@ -506,7 +504,7 @@ class GameTestNoRedBallAtTheTable(unittest.TestCase):
         self.game.green.velocity = Vec2D(10, 50)
         self.game.balls_handler()
         self.game.game_handler()
-        self.assertEqual(self.game.condition, 'red free')
+        self.assertEqual(self.game.condition, RED_FREE)
         self.assertEqual(self.game.turn.points, FOUL_POINTS)
         self.assertEqual(self.game.turn, self.game.second_player)
         self.assertEqual(self.game.first_player.points, 0)
@@ -521,15 +519,14 @@ class GameTestNoRedBallAtTheTable(unittest.TestCase):
         self.game.black.coords = Vec2D(UL_POCKET)
         self.game.black.velocity = Vec2D(10, 50)
         while self.game.next_target_ball != 7:
-            self.game.next_target_ball = next(self.game.colol_target_order)
+            self.game.next_target_ball = next(self.game.colol_order)
         self.game.balls_handler()
         self.game.game_handler()
-        self.assertEqual(self.game.condition, 'red free')
+        self.assertEqual(self.game.condition, RED_FREE)
         self.assertEqual(self.game.turn.points, 7)
         self.assertEqual(self.game.turn, self.game.first_player)
         self.assertFalse(self.game.next_target_ball)
         self.assertEqual(self.game.all_balls, [])
-        
 
 
 class GameTestBallReturningTests(unittest.TestCase):
@@ -563,6 +560,7 @@ class GameTestBallReturningTests(unittest.TestCase):
         self.game.game_handler()
         self.assertEqual(self.game.black.coords.x, Vec2D(POS_BLACK).x + 16)
         self.assertEqual(self.game.black.coords.y, Vec2D(POS_BLACK).y)
+
 
 class GameTestBallMovementAndCollision(unittest.TestCase):
     def setUp(self):
@@ -612,8 +610,32 @@ class GameTestBallMovementAndCollision(unittest.TestCase):
         self.game.cue.r = 0
         self.game.game_handler()
         self.assertEqual(self.game.cue.r, CUE_DEFAULT_R)
-        
-        
+
+    def test_wall_collision(self):
+        self.game.redball1.coords = Vec2D(160, 100)
+        self.game.redball2.coords = Vec2D(160, 300)
+        self.game.redball3.coords = Vec2D(160, 470)
+        self.game.redball4.coords = Vec2D(940, 300)
+        self.game.redball1.velocity = Vec2D(0, -60)
+        self.game.redball2.velocity = Vec2D(-60, 0)
+        self.game.redball3.velocity = Vec2D(0, 60)
+        self.game.redball4.velocity = Vec2D(60, 0)
+        self.game.board_status = NON_STATICK
+        while self.game.board_status == NON_STATICK:
+            self.game.balls_handler()
+            self.game.game_handler()
+        self.assertGreater(self.game.redball1.coords.y, UP_BORDER)
+        self.assertGreater(self.game.redball2.coords.x, LEFT_BORDER)
+        self.assertLess(self.game.redball3.coords.y, DOWN_BORDER)
+        self.assertLess(self.game.redball4.coords.x, RIGHT_BORDER)
+
+    def test_pocket_wall_collision(self):
+        self.game.blue.coords = Vec2D((560, 104))
+        self.game.blue.velocity = Vec2D(0, -100)
+        while (self.game.blue.coords - Vec2D(MR_POCKET)).length > POCKET_R+1:
+            self.game.balls_handler()
+        self.assertNotEqual(self.game.blue.velocity.x, 0)
+
 
 if __name__ == '__main__':
     unittest.main()

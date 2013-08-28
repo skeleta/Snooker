@@ -12,12 +12,21 @@ from draw import Draw
 
 class Game():
     clock = pygame.time.Clock()
-    pockets = {'ur_pocket': [Vec2D(UR_POCKET), Vec2D(125, 94), Vec2D(113, 78), Vec2D(143, 75), Vec2D(128, 63)],
-               'ul_pocket': [Vec2D(UL_POCKET), Vec2D(125, 480), Vec2D(113, 495), Vec2D(143, 498), Vec2D(128, 510)],
-               'dl_pocket': [Vec2D(DL_POCKET), Vec2D(974, 480), Vec2D(986, 495), Vec2D(956, 498), Vec2D(971, 510)],
-               'dr_pocket': [Vec2D(DR_POCKET), Vec2D(956, 75), Vec2D(971, 63), Vec2D(974, 94), Vec2D(986, 79)],
-               'ml_pocket': [Vec2D(ML_POCKET), Vec2D(530, 498), Vec2D(539, 510), Vec2D(568, 498), Vec2D(560, 510)],
-               'mr_pocket': [Vec2D(MR_POCKET), Vec2D(530, 75), Vec2D(539, 63), Vec2D(568, 75), Vec2D(560, 63)]}
+    pockets = {'ur_pocket': [Vec2D(UR_POCKET), Vec2D(125, 94), Vec2D(113, 78),
+                             Vec2D(143, 75), Vec2D(128, 63)],
+               'ul_pocket': [Vec2D(UL_POCKET), Vec2D(125, 480),
+                             Vec2D(113, 495), Vec2D(143, 498),
+                             Vec2D(128, 510)],
+               'dl_pocket': [Vec2D(DL_POCKET), Vec2D(974, 480),
+                             Vec2D(986, 495), Vec2D(956, 498),
+                             Vec2D(971, 510)],
+               'dr_pocket': [Vec2D(DR_POCKET), Vec2D(956, 75), Vec2D(971, 63),
+                             Vec2D(974, 94), Vec2D(986, 79)],
+               'ml_pocket': [Vec2D(ML_POCKET), Vec2D(530, 498),
+                             Vec2D(539, 510), Vec2D(568, 498),
+                             Vec2D(560, 510)],
+               'mr_pocket': [Vec2D(MR_POCKET), Vec2D(530, 75), Vec2D(539, 63),
+                             Vec2D(568, 75), Vec2D(560, 63)]}
 
     def __init__(self):
         self.moving_balls = deque([])
@@ -46,24 +55,25 @@ class Game():
         self.blue = balls.ColorBall(coords=POS_BLUE, COLOR=BLUE, points=5)
         self.brown = balls.ColorBall(coords=POS_BROWN, COLOR=BROWN, points=4)
         self.green = balls.ColorBall(coords=POS_GREEN, COLOR=GREEN, points=3)
-        self.yellow = balls.ColorBall(coords=POS_YELLOW, COLOR=YELLOW, points=2)
+        self.yellow = balls.ColorBall(coords=POS_YELLOW,
+                                      COLOR=YELLOW, points=2)
         self.first_player = Player("Selby")
         self.second_player = Player("O'Sullivan")
         self.all_balls = deque([
-                                self.redball1, self.redball2, self.redball3,
-                                self.redball4, self.redball5, self.redball6,
-                                self.redball7, self.redball8, self.redball9,
-                                self.redball10, self.redball11, self.redball12,
-                                self.redball13, self.redball14, self.redball15,
-                                self.white_ball, self.black, self.pink,
-                                self.blue, self.brown, self.green, self.yellow
-                                ])
+                               self.redball1, self.redball2, self.redball3,
+                               self.redball4, self.redball5, self.redball6,
+                               self.redball7, self.redball8, self.redball9,
+                               self.redball10, self.redball11, self.redball12,
+                               self.redball13, self.redball14, self.redball15,
+                               self.white_ball, self.black, self.pink,
+                               self.blue, self.brown, self.green, self.yellow
+                               ])
         self.cue = Cue()
         self.turn = self.first_player
         self.board_status = STATICK
-        self.colol_target_order = iter([x for x in range(2, 8)])
-        self.next_target_ball = next(self.colol_target_order)
-        self.condition = "still red"
+        self.colol_order = iter([x for x in range(2, 8)])
+        self.next_target_ball = next(self.colol_order)
+        self.condition = STILL_RED
         self.score = Score()
         self.foul = False
         self.hit = False
@@ -75,19 +85,24 @@ class Game():
                 ball, next_ball = self.all_balls[a], self.all_balls[b]
                 delta = next_ball.coords - ball.coords
                 if (next_ball.coords - ball.coords).length <= ball.RADIUS * 2:
-                    if ball.velocity.length > 0 and next_ball.velocity.length > 0:
-                        ball.coords += Vec2D.normalized(delta) * (delta.length - ball.RADIUS * 2)
-                        next_ball.coords += Vec2D.normalized(-delta) * (delta.length - ball.RADIUS * 2)
+                    if ball.velocity.length > 0 and \
+                            next_ball.velocity.length > 0:
+                        ball.coords += Vec2D.normalized(delta) *\
+                            (delta.length - ball.RADIUS * 2)
+                        next_ball.coords += Vec2D.normalized(-delta) *\
+                            (delta.length - ball.RADIUS * 2)
                         self.ball_collision(ball, next_ball)
                     elif ball.velocity.length > 0:
                         if isinstance(ball, balls.WhiteBall):
                             self.hitted_balls.append(next_ball)
-                        ball.coords += Vec2D.normalized(delta) * (delta.length - ball.RADIUS * 2)
+                        ball.coords += Vec2D.normalized(delta) *\
+                            (delta.length - ball.RADIUS * 2)
                         self.ball_collision(ball, next_ball)
                     elif next_ball.velocity.length > 0:
                         if isinstance(next_ball, balls.WhiteBall):
                             self.hitted_balls.append(ball)
-                        next_ball.coords += Vec2D.normalized(-delta) * (delta.length - ball.RADIUS * 2)
+                        next_ball.coords += Vec2D.normalized(-delta) *\
+                            (delta.length - ball.RADIUS * 2)
                         self.ball_collision(ball, next_ball)
 
     def balls_handler(self):
@@ -96,20 +111,20 @@ class Game():
                 ball.move(self.pockets)
             if ball.is_potted and ball not in self.potted:
                 self.potted.append(ball)
-            if ball.vizibility == True:
+            if ball.vizibility:
                 self.painter.draw_balls(ball)
 
     def white_ball_grab(self):
         mouse_pos = Vec2D(pygame.mouse.get_pos())
         if self.white_ball.coords.x-8 < mouse_pos.x < \
-                    self.white_ball.coords.x+8 and self.white_ball.coords.y-8\
-                    < mouse_pos.y < self.white_ball.coords.y+8:
-                for event in pygame.event.get():
-                    (mouse1, mouse2, mouse3) = pygame.mouse.get_pressed()
-                    if mouse1:
-                        self.white_ball.grabed = True
-                    else:
-                        self.white_ball.grabed = False
+                self.white_ball.coords.x+8 and self.white_ball.coords.y-8\
+                < mouse_pos.y < self.white_ball.coords.y+8:
+            for event in pygame.event.get():
+                (mouse1, mouse2, mouse3) = pygame.mouse.get_pressed()
+                if mouse1:
+                    self.white_ball.grabed = True
+                else:
+                    self.white_ball.grabed = False
         if self.white_ball.grabed:
             self.white_ball.coords = mouse_pos
 
@@ -120,7 +135,8 @@ class Game():
         if keys[pygame.K_KP_ENTER]:
             new_velocity = Vec2D.normalized(start_pos - end_pos)
             force = Vec2D(self.white_ball.coords - start_pos).length
-            self.white_ball.velocity = new_velocity * force ** 2 / MIN_HITTING_FORCE
+            self.white_ball.velocity = new_velocity *\
+                force ** 2 / MIN_HITTING_FORCE
             self.hit = True
             self.who_plays()
 
@@ -194,11 +210,11 @@ class Game():
             self.hit = False
             self.cue_handler()
             if self.hitted_balls:
-                if self.condition == "still red":
-                    if (isinstance(self.hitted_balls[0], balls.ColorBall)\
+                if self.condition == STILL_RED:
+                    if (isinstance(self.hitted_balls[0], balls.ColorBall)
                             and self.turn.target != COLOR_TARGET) or\
-                            (isinstance(self.hitted_balls[0], balls.RedBall)\
-                            and self.turn.target != RED_TARGET):
+                            (isinstance(self.hitted_balls[0], balls.RedBall)
+                             and self.turn.target != RED_TARGET):
                         if not self.potted:
                             self.foul = True
                             self.change_turn()
@@ -210,7 +226,8 @@ class Game():
                         else:
                             self.foul = True
                             points = [self.hitted_balls[0].points]
-                            self.potted_ball_handler(self.potted, color_points=points)
+                            self.potted_ball_handler(self.potted,
+                                                     color_points=points)
                     if self.potted and self.foul is not True:
                         self.potted_ball_handler(self.potted)
                     elif self.foul is not True:
@@ -236,7 +253,7 @@ class Game():
     def ball_return(self, potted_ball):
         potted_ball.vizibility = True
         returning_pos = Vec2D(potted_ball.pos)
-        color_balls_pos = [x.pos for x in self.all_balls 
+        color_balls_pos = [x.pos for x in self.all_balls
                            if isinstance(x, balls.ColorBall)]
         empty_place = False
         my_place_taken = self.chek_for_place(potted_ball)
@@ -277,9 +294,9 @@ class Game():
                 break
         if flag:
             if self.turn.target == COLOR_TARGET:
-                self.condition = "still red"
+                self.condition = STILL_RED
             else:
-                self.condition = "red free"
+                self.condition = RED_FREE
 
     def no_red_game_handler(self):
         points = [0]
@@ -302,7 +319,7 @@ class Game():
                         self.turn.points += self.potted[0].points
                         self.all_balls.remove(self.potted[0])
                         try:
-                            self.next_target_ball = next(self.colol_target_order)
+                            self.next_target_ball = next(self.colol_order)
                         except:
                             self.next_target_ball = False
                             # print("Game finished")

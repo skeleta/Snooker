@@ -13,7 +13,6 @@ def main():
     while running:
         the_game.white_ball_grab()
         for event in pygame.event.get():
-            #print(event)
             if event.type == pygame.QUIT:
                 running = False
             key = pygame.key.get_pressed()

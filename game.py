@@ -138,7 +138,6 @@ class Game():
             self.white_ball.velocity = new_velocity *\
                 force ** 2 / MIN_HITTING_FORCE
             self.hit = True
-            self.who_plays()
 
     def if_statick_board(self):
         for ball in self.all_balls:
@@ -245,10 +244,6 @@ class Game():
         else:
             self.turn = self.first_player
         self.turn.target = RED_TARGET
-
-    def who_plays(self):
-        print("-----")
-        print(self.turn.name + " hit")
 
     def ball_return(self, potted_ball):
         potted_ball.vizibility = True
